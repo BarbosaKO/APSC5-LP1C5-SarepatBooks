@@ -4,7 +4,7 @@ Projeto final das aulas de Análise e Projeto de Sistemas(APS) e Linguagem de Pr
 
 Equipe:
 Gabriel Barbosa da Silva - <gabriel.barbosa@aluno.ifsp.edu.br>;
-Gabriel de Lara Ribeiro;
+Gabriel de Lara Ribeiro - <gabriel.lara@aluno.ifsp.edu.br>;
 Gabriele Machado Barbosa;
 Gustavo Paiva Correa;
 Gustavo Vinicius Carrara de Oliveira. 
