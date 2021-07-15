@@ -78,7 +78,7 @@ public class EditoraDAO {
     public void alterar(Editora editora){
         Connection conn = Conexao.open();
         PreparedStatement pstm = null;
-        String sql = "update editora set nome = (?) where codigo = (?)";
+        String sql = "update editora set nome = ? where codigo = ?";
         try {
             pstm = conn.prepareStatement(sql);
             pstm.setString(1, editora.getNome());
@@ -92,7 +92,18 @@ public class EditoraDAO {
     }
     
     //************************** EXCLUIR *******************************************
-    public void excluir(){
-        
+    public void excluir(int codigo){
+        Connection conn = Conexao.open();
+        PreparedStatement pstm = null;
+        String sql = "delete from editora where codigo = (?)";
+        try {
+            pstm = conn.prepareStatement(sql);
+            pstm.setInt(1, codigo);
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            Conexao.close(conn, pstm, null);
+        }
     }
 }

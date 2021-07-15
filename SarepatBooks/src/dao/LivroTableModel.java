@@ -63,8 +63,68 @@ public class LivroTableModel extends AbstractTableModel{
         this.estoques = estoques;
     }
     
-    public void atualizaTabela(){
+    public Livro getLivroByID(int id){
+        for(int i=0; i<this.livros.size(); i++){
+            if(this.livros.get(i).getCodigo() == id){
+                return this.livros.get(i);
+            }
+        }
+        System.out.println("ID nao encontrado!");
+        return null;
+    }
+    
+    public String getAllGenero(int id){
+        String generoTxt = "";
+        int aux = 0;
+        for(int i=0; i<this.generos.size(); i++){
+            if(this.generos.get(i).getLivro().getCodigo() == id){
+                if(aux == 0){
+                    generoTxt += this.generos.get(i).getNome();
+                    aux++;
+                }else{
+                    generoTxt += ","+this.generos.get(i).getNome();
+                }
+            }
+        }
+        if(generoTxt.compareTo("") == 0){
+            System.out.println("Generos nao encontrados!");
+            return null;
+        }else{
+            return generoTxt;
+        }
+    }
+    
+    public String getAllAutor(int id){
+        String autorTxt = "";
+        int aux = 0;
+        for(int i=0; i<this.autores.size(); i++){
+            if(this.autores.get(i).getLivro().getCodigo() == id){
+                if(aux == 0){
+                    autorTxt += this.autores.get(i).getNome();
+                    aux++;
+                }else{
+                    autorTxt += ","+this.autores.get(i).getNome();
+                }
+            }
+        }
+        if(autorTxt.compareTo("") == 0){
+            System.out.println("Autores nao encontrados!");
+            return null;
+        }else{
+            return autorTxt;
+        }
+    }
+    
+    public void carregaTabela(){
         this.fireTableDataChanged();
+    }
+    
+    public void atualizaTabela(int a, int b){
+        this.fireTableRowsUpdated(a, b);
+    }
+    
+    public void apagarLinha(int linha){
+        this.fireTableRowsDeleted(linha, linha);
     }
     
     @Override

@@ -5,9 +5,9 @@
  */
 package loja;
 
-import dao.LivroTableModel;
-import java.text.ParseException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import service.EstoqueService;
@@ -24,7 +24,7 @@ public class ViewManterLivros extends javax.swing.JFrame {
     public int modo = -1;
     EstoqueService estoqueService = new EstoqueService();
     
-    public ViewManterLivros() {
+    public ViewManterLivros() throws ParseException {
         estoqueService.mostrarDados();
         initComponents();
     }
@@ -348,6 +348,11 @@ public class ViewManterLivros extends javax.swing.JFrame {
         btnExcluir.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         btnExcluir.setText("Excluir");
         btnExcluir.setEnabled(false);
+        btnExcluir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExcluirActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -384,6 +389,11 @@ public class ViewManterLivros extends javax.swing.JFrame {
         );
 
         tabelaLivro.setModel(estoqueService.getLivroTableModel());
+        tabelaLivro.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                tabelaLivroFocusGained(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabelaLivro);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -528,7 +538,29 @@ public class ViewManterLivros extends javax.swing.JFrame {
                 break;
             case 1:
                 //Editar
-                
+                try {
+                    //EstoqueService estoqueService = new EstoqueService();
+                    SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+
+                    String obra = obraTextField.getText();
+                    int edicao = Integer.parseInt(edicaoSpinner.getValue().toString());
+                    java.util.Date ano = formato.parse(anoTextField.getText());
+                    int numPaginas = Integer.parseInt(numPaginasTextField.getText());
+                    String idioma = idiomaTextField.getText();
+                    String pais = paisTextField.getText();
+                    String isbn = isbnTextField.getText();
+                    Double preco = Double.parseDouble(precoTextField.getText().replace(",","."));
+                    String editora = editoraTextField.getText().trim();
+                    String genero = generoTextField.getText();
+                    String autor = autorTextField.getText();
+                    int quantidade = Integer.parseInt(quantidadeSpinner.getValue().toString());
+
+                    estoqueService.editarDados(tabelaLivro.getSelectedRow(),obra,edicao,ano,numPaginas,idioma,pais,isbn,preco,editora,genero,autor,quantidade);
+                    adicionarEditarLivroFrame.dispose();
+
+                } catch (ParseException ex) {
+                    Logger.getLogger(ViewManterLivros.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Modo invalido!");
@@ -538,23 +570,44 @@ public class ViewManterLivros extends javax.swing.JFrame {
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
         // TODO add your handling code here:
-        tituloLivroLabel.setText("Editar Livro");
-        
-        obraTextField.setText("");
-        edicaoSpinner.setValue(0);
-        anoTextField.setText("");
-        numPaginasTextField.setText("");
-        idiomaTextField.setText("");
-        paisTextField.setText("");
-        isbnTextField.setText("");
-        precoTextField.setText("");
-        editoraTextField.setText("");
-        generoTextField.setText("");
-        autorTextField.setText("");
-        quantidadeSpinner.setValue(0);
-        modo = 1;
-        adicionarEditarLivroFrame.setVisible(true);
+        if(tabelaLivro.getSelectedRow()!=-1){
+            //estoqueService.editarDados(tabelaLivro.getSelectedRow());
+            //System.out.println(tabelaLivro.getSelectedRow());
+            
+            DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            String anoTxt = formatter.format(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getAno());
+            
+            tituloLivroLabel.setText("Editar Livro");
+            obraTextField.setText(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getObra() );
+            edicaoSpinner.setValue(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getEdicao() );
+            anoTextField.setText(anoTxt);
+            numPaginasTextField.setText(Integer.toString(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getNumPaginas()) );
+            idiomaTextField.setText(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getIdioma());
+            paisTextField.setText(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getPais());
+            isbnTextField.setText(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getIsbn());
+            precoTextField.setText(Double.toString(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getPreco()) );
+            editoraTextField.setText(estoqueService.getLivroTableModel().getEditoras().get(tabelaLivro.getSelectedRow()).getNome() );
+            generoTextField.setText(estoqueService.getLivroTableModel().getAllGenero(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getCodigo()) );
+            autorTextField.setText(estoqueService.getLivroTableModel().getAllAutor(estoqueService.getLivroTableModel().getLivros().get(tabelaLivro.getSelectedRow()).getCodigo()) );
+            quantidadeSpinner.setValue(estoqueService.getLivroTableModel().getEstoques().get(tabelaLivro.getSelectedRow()).getQuantidade() );
+            modo = 1;
+            adicionarEditarLivroFrame.setVisible(true);
+        }
     }//GEN-LAST:event_btnEditarActionPerformed
+
+    private void tabelaLivroFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tabelaLivroFocusGained
+        // TODO add your handling code here:
+        btnEditar.setEnabled(true);
+        btnExcluir.setEnabled(true);
+    }//GEN-LAST:event_tabelaLivroFocusGained
+
+    private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
+        // TODO add your handling code here:
+        if(tabelaLivro.getSelectedRow()!=-1){
+            estoqueService.excluirDados(tabelaLivro.getSelectedRow());
+            //System.out.println(tabelaLivro.getSelectedRow());
+        }
+    }//GEN-LAST:event_btnExcluirActionPerformed
 
     /**
      * @param args the command line arguments
@@ -587,7 +640,14 @@ public class ViewManterLivros extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ViewManterLivros().setVisible(true);
+                ViewManterLivros viewManterLivros;
+                try {
+                    viewManterLivros = new ViewManterLivros();
+                    viewManterLivros.setVisible(true);
+                } catch (ParseException ex) {
+                    Logger.getLogger(ViewManterLivros.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
             }
         });
     }

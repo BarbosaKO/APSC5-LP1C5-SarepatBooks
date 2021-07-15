@@ -8,7 +8,7 @@ package dao;
 import classes.Livro;
 import classes.Editora;
 import java.sql.*;
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -62,8 +62,8 @@ public class LivroDAO {
         }
     }
     //************************** LER *******************************************
-    public List<Livro>ler(List<Editora> editoras){
-        SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+    public List<Livro>ler(List<Editora> editoras) throws ParseException{
+        
         List<Livro> livros = new ArrayList<>();
         Connection conn = Conexao.open();
         PreparedStatement pstm = null;
@@ -87,8 +87,7 @@ public class LivroDAO {
     public void alterar(Livro livro){
         Connection conn = Conexao.open();
         PreparedStatement pstm = null;
-        String sql = "update livro set obra = (?), edicao = (?), ano = (?), numPaginas = (?), idioma = (?),"
-                + " pais = (?), isbn = (?), preco = (?), editora = (?) where codigo = (?)";
+        String sql = "update livro set obra = ?, edicao = ?, ano = ?, numPaginas = ?, idioma = ?, pais = ?, isbn = ?, preco = ? where codigo = ?";
         try {
             pstm = conn.prepareStatement(sql);
             pstm.setString(1, livro.getObra());
@@ -99,9 +98,8 @@ public class LivroDAO {
             pstm.setString(6, livro.getPais());
             pstm.setString(7, livro.getIsbn());
             pstm.setDouble(8, livro.getPreco());
-            pstm.setInt(9, livro.getEditora().getCodigo());
-            pstm.setInt(10, livro.getCodigo());
-            
+            pstm.setInt(9, livro.getCodigo());
+            pstm.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -110,7 +108,18 @@ public class LivroDAO {
     }
     
     //************************** EXCLUIR *******************************************
-    public void excluir(){
-        
+    public void excluir(int codigo){
+        Connection conn = Conexao.open();
+        PreparedStatement pstm = null;
+        String sql = "delete from livro where codigo = (?)";
+        try {
+            pstm = conn.prepareStatement(sql);
+            pstm.setInt(1, codigo);
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            Conexao.close(conn, pstm, null);
+        }
     }
 }

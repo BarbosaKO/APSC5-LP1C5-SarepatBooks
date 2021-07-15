@@ -6,7 +6,6 @@
 package dao;
 
 import classes.Estoque;
-import classes.Livro;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,7 @@ public class EstoqueDAO {
         }
     }
     //************************** LER *******************************************
-    public List<Estoque> ler(List<Livro> livros){
+    public List<Estoque> ler(LivroTableModel livroTableModel){
         List<Estoque> estoques = new ArrayList<>();
         Connection conn = Conexao.open();
         PreparedStatement pstm = null;
@@ -65,7 +64,7 @@ public class EstoqueDAO {
             pstm = conn.prepareStatement(sql);
             rs = pstm.executeQuery();
             for(int i=0; rs.next(); i++){
-                estoques.add(new Estoque(rs.getInt("codigo"), rs.getInt("quantidade"), livros.get(rs.getInt("codigo_livro")) ));
+                estoques.add(new Estoque(rs.getInt("codigo"), rs.getInt("quantidade"), livroTableModel.getLivroByID(rs.getInt("codigo_livro")) ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -76,12 +75,35 @@ public class EstoqueDAO {
     }
     
     //************************** ALTERAR *******************************************
-    public void alterar(){
-        
+    public void alterar(Estoque estoque){
+        Connection conn = Conexao.open();
+        PreparedStatement pstm = null;
+        String sql = "update estoque set quantidade=? where codigo=?";
+        try {
+            pstm = conn.prepareStatement(sql);
+            pstm.setInt(1, estoque.getQuantidade());
+            pstm.setInt(2, estoque.getCodigo());
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            Conexao.close(conn, pstm, null);
+        }
     }
     
     //************************** EXCLUIR *******************************************
-    public void excluir(){
-        
+    public void excluir(int codigo){
+        Connection conn = Conexao.open();
+        PreparedStatement pstm = null;
+        String sql = "delete from estoque where codigo_livro = (?)";
+        try {
+            pstm = conn.prepareStatement(sql);
+            pstm.setInt(1, codigo);
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            Conexao.close(conn, pstm, null);
+        }
     }
 }

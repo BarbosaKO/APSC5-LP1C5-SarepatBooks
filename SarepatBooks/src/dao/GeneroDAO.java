@@ -6,7 +6,6 @@
 package dao;
 
 import classes.Genero;
-import classes.Livro;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,29 +36,25 @@ public class GeneroDAO {
     
     //************************** CRIAR *******************************************
     public void criar(Genero genero){
-        java.util.StringTokenizer generos = new java.util.StringTokenizer(genero.getNome(),",");
-        
-        for(int count=genero.getCodigo(); generos.hasMoreTokens(); count++){
-            Connection conn = Conexao.open();
-            PreparedStatement pstm = null;
-            String sql = "insert into genero values (?,?,?)";
-            try {
-                pstm = conn.prepareStatement(sql);
-                pstm.setInt(1, count);
-                pstm.setInt(2, genero.getLivro().getCodigo());
-                pstm.setString(3, generos.nextToken().trim());
+        Connection conn = Conexao.open();
+        PreparedStatement pstm = null;
+        String sql = "insert into genero values (?,?,?)";
+        try {
+            pstm = conn.prepareStatement(sql);
+            pstm.setInt(1, genero.getCodigo());
+            pstm.setInt(2, genero.getLivro().getCodigo());
+            pstm.setString(3, genero.getNome());
 
-                pstm.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                Conexao.close(conn, pstm, null);
-            }
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            Conexao.close(conn, pstm, null);
         }
         
     }
     //************************** LER *******************************************
-    public List<Genero> ler(List<Livro> livros){
+    public List<Genero> ler(LivroTableModel livroTableModel){
         List<Genero> generos = new ArrayList<>();
         Connection conn = Conexao.open();
         PreparedStatement pstm = null;
@@ -69,7 +64,7 @@ public class GeneroDAO {
             pstm = conn.prepareStatement(sql);
             rs = pstm.executeQuery();
             for(int i=0; rs.next(); i++){
-                generos.add(new Genero(rs.getInt("codigo"), livros.get(rs.getInt("codigo_livro")), rs.getString("nome")));
+                generos.add(new Genero(rs.getInt("codigo"), livroTableModel.getLivroByID(rs.getInt("codigo_livro")), rs.getString("nome")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -81,12 +76,35 @@ public class GeneroDAO {
     }
     
     //************************** ALTERAR *******************************************
-    public void alterar(){
-        
+    public void alterar(Genero genero){
+        Connection conn = Conexao.open();
+        PreparedStatement pstm = null;
+        String sql = "update genero set nome=? where codigo=?";
+        try {
+            pstm = conn.prepareStatement(sql);
+            pstm.setString(1, genero.getNome());
+            pstm.setInt(2, genero.getCodigo());
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            Conexao.close(conn, pstm, null);
+        }
     }
     
     //************************** EXCLUIR *******************************************
-    public void excluir(){
-        
+    public void excluir(int codigo){
+        Connection conn = Conexao.open();
+        PreparedStatement pstm = null;
+        String sql = "delete from genero where codigo_livro = (?)";
+        try {
+            pstm = conn.prepareStatement(sql);
+            pstm.setInt(1, codigo);
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            Conexao.close(conn, pstm, null);
+        }
     }
 }
